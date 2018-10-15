@@ -1,7 +1,10 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 
-var {mongoose} = require('./db/mongoose.js');
+var {initializedMongoose} = require('./db/initialized-mongoose.js');
+
+// can I access multiple different MongoDB at the same time?
+
 var {Todo} = require('./models/todo.js');
 var {User} = require('./models/user.js');
 
@@ -11,7 +14,7 @@ app.use(bodyParser.json());
 
 // POST /todos
 app.post('/todos', (req, res) => {
-  console.log(req.body);
+  // console.log(req.body);
 
   var todo = new Todo({
     text: req.body.text
@@ -24,11 +27,11 @@ app.post('/todos', (req, res) => {
     (
       (doc) => {
         res.send(doc);
-        console.log('Saved todo', doc);
+        // console.log('Saved todo', doc);
       },
       (e) => {
-        res.send(doc);
-        console.log('Unable to save todo:', e);
+        res.status(400).send(doc);
+        // console.log('Unable to save todo:', e);
       }
     )
   ;
@@ -41,7 +44,7 @@ app.post('/todos', (req, res) => {
 const port = process.env.PORT || 3000;
 
 app.listen(port, () => {
-  console.log(`Server is up on port ${port}`);
+  console.log(`Todo API Server is up on port ${port}`);
 });
 
 // var newUser = new User({
