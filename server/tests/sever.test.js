@@ -4,14 +4,18 @@ var {app} = require('./../server.js');
 var {Todo} = require('./../models/todo.js');
 
 beforeEach((done) => {
-  Todo.remove({}).then(() => done());
+
+  Todo.deleteMany({})
+    .then(() => done())
+    ;
+
 });
 
 describe('POST /todos', () => { /* start callback in describe */
 
   it('A: should create a new todo', (done) => {
 
-    var text = 'Freddys TEST todo text';
+    var text = 'Freddys powerfull TEST todo text';
 
     request(app)
       .post('/todos')
@@ -35,13 +39,15 @@ describe('POST /todos', () => { /* start callback in describe */
       })
       ;
 
-  } /* end callback in it "A" */ );
+  } /* end of callback in it('A:..) */ );
 
   it('B: should not create a todo with invalid body data', (done) => {
 
+    var text = '';
+
     request(app)
       .post('/todos')
-      .send({})
+      .send({text})
       .expect(400) // assertion about status
       .end((err, res) => { // check what got stored in the mongoDB collection
 
@@ -57,6 +63,6 @@ describe('POST /todos', () => { /* start callback in describe */
       })
       ;
 
-  } /* end callback in it "B" */ );
+  } /* end of callback in it('B:..) */ );
 
-} /* end callback in describe */ );
+} /* end of callback in describe() */ );

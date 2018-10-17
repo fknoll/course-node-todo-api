@@ -30,7 +30,7 @@ app.post('/todos', (req, res) => {
         // console.log('Saved todo', doc);
       },
       (e) => {
-        res.status(400).send(doc);
+        res.status(400).send(e);
         // console.log('Unable to save todo:', e);
       }
     )
