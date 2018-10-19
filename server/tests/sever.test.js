@@ -3,11 +3,23 @@ const suspect = require('expect');
 var {app} = require('./../server.js');
 var {Todo} = require('./../models/todo.js');
 
+const testTodos = [
+  {
+    text: 'First test todo'
+  },
+  {
+    text: 'Second test todo'
+  }
+];
+
 beforeEach((done) => {
 
   Todo.deleteMany({})
+    .then(() => {
+      return Todo.insertMany(testTodos);
+    })
     .then(() => done())
-    ;
+  ;
 
 });
 
@@ -30,7 +42,7 @@ describe('POST /todos', () => { /* start callback in describe */
           return done(err);
         }
 
-        Todo.find().then((todos) => {
+        Todo.find({text}).then((todos) => {
           suspect(todos.length).toBe(1);
           suspect(todos[0].text).toBe(text);
           done();
@@ -56,7 +68,7 @@ describe('POST /todos', () => { /* start callback in describe */
         }
 
         Todo.find().then((todos) => {
-          suspect(todos.length).toBe(0);
+          suspect(todos.length).toBe(2);
           done();
         }).catch((e) => done(e));
 
@@ -64,5 +76,23 @@ describe('POST /todos', () => { /* start callback in describe */
       ;
 
   } /* end of callback in it('B:..) */ );
+
+} /* end of callback in describe() */ );
+
+describe('GET /todos', () => { /* start callback in describe */
+
+  it('A: should get all todos', (done) => {
+
+    request(app)
+      .get('/todos')
+      .expect(200) // assertion about status
+      .expect((res) => { // assertion about the result that comes back
+        // console.log(res.body);
+        suspect(res.body.todos.length).toBe(2);
+      })
+      .end(done)
+      ;
+
+  } /* end of callback in it('A:..) */ );
 
 } /* end of callback in describe() */ );
