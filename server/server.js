@@ -23,15 +23,42 @@ app.post('/todos', (req, res) => {
   });
 
   todo.save()
-  .then
-    (
+    .then(
       (doc) => {
         res.send(doc);
-        // console.log('Saved todo', doc);
       },
       (e) => {
         res.status(400).send(e);
-        // console.log('Unable to save todo:', e);
+      }
+    )
+  ;
+});
+
+// GET /users
+app.get('/users', (req, res) => {
+
+  User.find()
+    .then(
+      (users) => {
+        res.send(users);
+      },
+      (e) => {
+        res.status(400).send(e);
+      }
+    )
+  ;
+});
+
+// GET /todos
+app.get('/todos', (req, res) => {
+
+  Todo.find()
+    .then(
+      (todos) => {
+        res.send(todos);
+      },
+      (e) => {
+        res.status(400).send(e);
       }
     )
   ;
