@@ -1,7 +1,7 @@
 const request = require('supertest');
 const suspect = require('expect');
-var {app} = require('./../server.js');
-var {Todo} = require('./../models/todo.js');
+const {app} = require('./../server.js');
+const {Todo} = require('./../models/todo.js');
 
 const testTodos = [
   {
@@ -27,14 +27,14 @@ describe('POST /todos', () => { /* start callback in describe */
 
   it('A: should create a new todo', (done) => {
 
-    var text = 'Freddys powerfull TEST todo text';
+    var myTxt = 'My todo TEST text';
 
     request(app)
       .post('/todos')
-      .send({text})
+      .send({text: myTxt})
       .expect(200) // assertion about status
       .expect((res) => { // assertion about the result that comes back
-        suspect(res.body.text).toBe(text);
+        suspect(res.body.text).toBe(myTxt);
       })
       .end((err, res) => { // check what got stored in the mongoDB collection
 
@@ -42,9 +42,9 @@ describe('POST /todos', () => { /* start callback in describe */
           return done(err);
         }
 
-        Todo.find({text}).then((todos) => {
+        Todo.find({text: myTxt}).then((todos) => {
           suspect(todos.length).toBe(1);
-          suspect(todos[0].text).toBe(text);
+          suspect(todos[0].text).toBe(myTxt);
           done();
         }).catch((e) => done(e));
 
@@ -55,11 +55,11 @@ describe('POST /todos', () => { /* start callback in describe */
 
   it('B: should not create a todo with invalid body data', (done) => {
 
-    var text = '';
+    var myTxt = '';
 
     request(app)
       .post('/todos')
-      .send({text})
+      .send({text: myTxt })
       .expect(400) // assertion about status
       .end((err, res) => { // check what got stored in the mongoDB collection
 

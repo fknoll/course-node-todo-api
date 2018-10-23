@@ -1,12 +1,12 @@
-var express = require('express');
-var bodyParser = require('body-parser');
+const express = require('express');
+const bodyParser = require('body-parser');
 
-var {initializedMongoose} = require('./db/initialized-mongoose.js');
+const {initializedMongoose} = require('./db/initialized-mongoose.js');
 
 // can I access multiple different MongoDB at the same time?
 
-var {Todo} = require('./models/todo.js');
-var {User} = require('./models/user.js');
+const {Todo} = require('./models/todo.js');
+const {User} = require('./models/user.js');
 
 var app = express();
 
