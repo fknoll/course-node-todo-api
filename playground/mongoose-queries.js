@@ -3,7 +3,7 @@ const {initializedMongoose} = require('./../server/db/initialized-mongoose.js');
 const {Todo} = require('./../server/models/todo.js');
 const {User} = require('./../server/models/user.js');
 
-var todoId = '5bcdcbb2be7cd938c8be3def'; // id is in the todos collection
+var todoId = '5bcefdc0a361380994884841'; // id is in the todos collection
 // var todoId = '6bcdcbb2be7cd938c8be3def'; // valid id, but not in the todos collection
 // var todoId = '5bcdcbb2be7cd938c8be3def11'; // invalid id
 
