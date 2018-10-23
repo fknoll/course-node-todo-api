@@ -1,13 +1,18 @@
 const request = require('supertest');
 const suspect = require('expect');
+
+const {ObjectID} = require('mongodb');
+
 const {app} = require('./../server.js');
 const {Todo} = require('./../models/todo.js');
 
 const testTodos = [
   {
+    _id: new ObjectID(),
     text: 'First test todo'
   },
   {
+    _id: new ObjectID(),
     text: 'Second test todo'
   }
 ];
@@ -94,5 +99,45 @@ describe('GET /todos', () => { /* start callback in describe */
       ;
 
   } /* end of callback in it('A:..) */ );
+
+} /* end of callback in describe() */ );
+
+describe('GET /todos/:id', () => { /* start callback in describe */
+
+  it('A: should return todo document', (done) => {
+
+    request(app)
+      .get(`/todos/${testTodos[1]._id.toHexString()}`)
+      .expect(200) // assertion about status
+      .expect((res) => { // assertion about the result that comes back
+        // console.log(res.body);
+        suspect(res.body.todo.text).toBe(testTodos[1].text);
+      })
+      .end(done)
+      ;
+
+  } /* end of callback in it('A:..) */ );
+
+  it('B: should return 404 if todo not found', (done) => {
+
+    var newId = new ObjectID();
+
+    request(app)
+      .get(`/todos/${newId.toHexString()}`)
+      .expect(404) // assertion about status
+      .end(done)
+      ;
+
+  } /* end of callback in it('B:..) */ );
+
+  it('C: should return 404 for in-valid id', (done) => {
+
+    request(app)
+      .get('/todos/1234abcd')
+      .expect(404) // assertion about status
+      .end(done)
+      ;
+
+  } /* end of callback in it('C:..) */ );
 
 } /* end of callback in describe() */ );
