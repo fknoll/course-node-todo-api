@@ -69,7 +69,7 @@ app.get('/todos', (req, res) => {
 
 });
 
-// GET /todos/123456
+// GET /todos/:id
 app.get('/todos/:id', (req, res) => {
 
   var id = req.params.id;
@@ -85,7 +85,7 @@ app.get('/todos/:id', (req, res) => {
       };
       res.send({todo});
     })
-    .catch((e) => res.status(400).send(e))
+    .catch((e) => res.status(400).send())
   ;
 
 });
