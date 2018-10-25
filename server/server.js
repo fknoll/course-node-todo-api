@@ -27,7 +27,7 @@ app.post('/todos', (req, res) => {
   todo.save()
     .then(
       (doc) => {
-        res.send(doc);
+        res.status(200).send(doc);
       },
       (e) => {
         res.status(400).send(e);
@@ -43,7 +43,7 @@ app.get('/users', (req, res) => {
   User.find()
     .then(
       (users) => {
-        res.send({users});
+        res.status(200).send({users});
       },
       (e) => {
         res.status(400).send(e);
@@ -59,7 +59,7 @@ app.get('/todos', (req, res) => {
   Todo.find()
     .then(
       (todos) => {
-        res.send({todos});
+        res.status(200).send({todos});
       },
       (e) => {
         res.status(400).send(e);
@@ -83,9 +83,30 @@ app.get('/todos/:id', (req, res) => {
       if (!todo) {
         return res.status(404).send();
       };
-      res.send({todo});
+      res.status(200).send({todo});
     })
     .catch((e) => res.status(400).send())
+  ;
+
+});
+
+// DELETE /todos/:id
+app.delete('/todos/:id', (req, res) => {
+
+  var id = req.params.id;
+
+  if (!ObjectID.isValid(id)) {
+    return res.status(404).send(); // 404 Not Found
+  };
+
+  Todo.findByIdAndRemove(id)
+    .then((todo) => {
+      if (!todo) {
+        return res.status(404).send(); // 404 Not Found
+      };
+      res.status(200).send({todo}); // 200 OK
+    })
+    .catch((e) => res.status(400).send()) // 400 Bad Request
   ;
 
 });
