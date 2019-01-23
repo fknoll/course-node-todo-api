@@ -18,19 +18,19 @@ app.use(bodyParser.json());
 app.use(express.static(__dirname + '/public'));
 app.set('view engine', 'hbs');
 
-app.use((req, res, next) => {
-  let now = new Date().toString();
-  let log = `${now}: ${req.method} ${req.originalUrl}`;
-  console.log(log);
-
-  fs.appendFile('server.log', log + os.EOL, (err) => {
-    if (err) {
-      console.log('Unable to append to server.log.')
-    }
-  });
-
-  next();
-});
+// app.use((req, res, next) => {
+//   let now = new Date().toString();
+//   let log = `${now}: ${req.method} ${req.originalUrl}`;
+//   console.log(log);
+//
+//   fs.appendFile('server.log', log + os.EOL, (err) => {
+//     if (err) {
+//       console.log('Unable to append to server.log.')
+//     }
+//   });
+//
+//   next();
+// });
 
 // GET /
 app.get('/', (req, res) => {
