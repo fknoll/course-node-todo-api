@@ -141,3 +141,59 @@ describe('GET /todos/:id', () => { /* start callback in describe */
   } /* end of callback in it('C:..) */ );
 
 } /* end of callback in describe() */ );
+
+describe('DELETE /todos/:id', () => { /* start callback in describe */
+
+  it('A: should remove a todo document', (done) => {
+
+    var idOfTodoToBeDeleted = testTodos[1]._id.toHexString();
+
+    request(app)
+      .delete(`/todos/${idOfTodoToBeDeleted}`)
+      .expect(200) // assertion about status
+      .expect((res) => { // assertion about the result that comes back
+        // console.log(res.body);
+        suspect(res.body.todo._id).toBe(idOfTodoToBeDeleted);
+      })
+      .end((err, res) => {
+
+        if (err) {
+          return done(err);
+        };
+
+        Todo.findById(idOfTodoToBeDeleted)
+          .then((todo) => {
+            suspect(todo).toBeFalsy();
+            done();
+          })
+          .catch((e) => done(e))
+        ;
+
+      })
+      ;
+
+  } /* end of callback in it('A:..) */ );
+
+  // it('B: should return 404 if todo not found', (done) => {
+  //
+  //   var newId = new ObjectID();
+  //
+  //   request(app)
+  //     .get(`/todos/${newId.toHexString()}`)
+  //     .expect(404) // assertion about status
+  //     .end(done)
+  //     ;
+  //
+  // } /* end of callback in it('B:..) */ );
+  //
+  // it('C: should return 404 for in-valid id', (done) => {
+  //
+  //   request(app)
+  //     .get('/todos/1234abcd')
+  //     .expect(404) // assertion about status
+  //     .end(done)
+  //     ;
+  //
+  // } /* end of callback in it('C:..) */ );
+
+} /* end of callback in describe() */ );

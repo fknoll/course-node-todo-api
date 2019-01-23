@@ -1,4 +1,7 @@
 const express = require('express');
+const hbs = require('hbs');
+const fs = require('fs');
+const os = require("os");
 const bodyParser = require('body-parser');
 
 const {ObjectID} = require('mongodb');
@@ -11,8 +14,30 @@ const {Todo} = require('./models/todo.js');
 const {User} = require('./models/user.js');
 
 var app = express();
-
 app.use(bodyParser.json());
+app.use(express.static(__dirname + '/public'));
+app.set('view engine', 'hbs');
+
+app.use((req, res, next) => {
+  let now = new Date().toString();
+  let log = `${now}: ${req.method} ${req.originalUrl}`;
+  console.log(log);
+
+  fs.appendFile('server.log', log + os.EOL, (err) => {
+    if (err) {
+      console.log('Unable to append to server.log.')
+    }
+  });
+
+  next();
+});
+
+// GET /
+app.get('/', (req, res) => {
+  res.render('home.hbs', {
+    pageTitle: ':LUMOZ API: | HOME'
+  });
+});
 
 // POST /todos
 app.post('/todos', (req, res) => {
