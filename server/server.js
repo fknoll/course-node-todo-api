@@ -1,8 +1,17 @@
+const _ = require('lodash');
 const express = require('express');
 const hbs = require('hbs');
 const fs = require('fs');
 const os = require("os");
 const bodyParser = require('body-parser');
+
+// About Object destructuring...
+  // const obj = { first: 'Jane', last: 'Doe' };
+  // const {first: f, last: l} = obj;
+      // f = 'Jane'; l = 'Doe'
+      // {prop} is short for {prop: prop}
+  // const {first, last} = obj;
+      // first = 'Jane'; last = 'Doe'
 
 const {ObjectID} = require('mongodb');
 
@@ -125,6 +134,36 @@ app.delete('/todos/:id', (req, res) => {
   };
 
   Todo.findByIdAndRemove(id)
+    .then((todo) => {
+      if (!todo) {
+        return res.status(404).send(); // 404 Not Found
+      };
+      res.status(200).send({todo}); // 200 OK
+    })
+    .catch((e) => res.status(400).send()) // 400 Bad Request
+  ;
+
+});
+
+// PATCH /todos/:id
+app.patch('/todos/:id', (req, res) => {
+
+  var id = req.params.id;
+  var body = _.pick(req.body, ['text', 'completed']);
+
+  if (!ObjectID.isValid(id)) {
+    return res.status(404).send(); // 404 Not Found
+  };
+
+  if(_.isBoolean(body.completed) && body.completed) {
+    body.completedAt = new Date().getTime();
+  } else {
+    body.compledted = false;
+    body.completedAt = null;
+  }
+  ;
+
+  Todo.findByIdAndUpdate(id, {$set: body}, {new: true})
     .then((todo) => {
       if (!todo) {
         return res.status(404).send(); // 404 Not Found

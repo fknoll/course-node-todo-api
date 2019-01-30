@@ -174,26 +174,26 @@ describe('DELETE /todos/:id', () => { /* start callback in describe */
 
   } /* end of callback in it('A:..) */ );
 
-  // it('B: should return 404 if todo not found', (done) => {
-  //
-  //   var newId = new ObjectID();
-  //
-  //   request(app)
-  //     .get(`/todos/${newId.toHexString()}`)
-  //     .expect(404) // assertion about status
-  //     .end(done)
-  //     ;
-  //
-  // } /* end of callback in it('B:..) */ );
-  //
-  // it('C: should return 404 for in-valid id', (done) => {
-  //
-  //   request(app)
-  //     .get('/todos/1234abcd')
-  //     .expect(404) // assertion about status
-  //     .end(done)
-  //     ;
-  //
-  // } /* end of callback in it('C:..) */ );
+  it('B: should return 404 if todo not found', (done) => {
+
+    var newId = new ObjectID();
+
+    request(app)
+      .delete(`/todos/${newId.toHexString()}`)
+      .expect(404) // assertion about status
+      .end(done)
+      ;
+
+  } /* end of callback in it('B:..) */ );
+
+  it('C: should return 404 for in-valid id', (done) => {
+  
+    request(app)
+      .delete('/todos/1234abcd')
+      .expect(404) // assertion about status
+      .end(done)
+      ;
+
+  } /* end of callback in it('C:..) */ );
 
 } /* end of callback in describe() */ );
