@@ -1,5 +1,9 @@
 const request = require('supertest');
-const suspect = require('expect');
+const suspect = require('chai').expect;
+
+// https://www.chaijs.com/guide/installation/
+// https://devhints.io/chai
+// const { expect } = require('chai')
 
 const {ObjectID} = require('mongodb');
 
@@ -13,7 +17,9 @@ const testTodos = [
   },
   {
     _id: new ObjectID(),
-    text: 'Second test todo'
+    text: 'Second test todo',
+    completed: true,
+    completedAt: 333
   }
 ];
 
@@ -37,9 +43,9 @@ describe('POST /todos', () => { /* start callback in describe */
     request(app)
       .post('/todos')
       .send({text: myTxt})
-      .expect(200) // assertion about status
-      .expect((res) => { // assertion about the result that comes back
-        suspect(res.body.text).toBe(myTxt);
+      .expect(200) // expectation about status
+      .expect((res) => { // expectation about the result that comes back
+        suspect(res.body.text).to.equal(myTxt);
       })
       .end((err, res) => { // check what got stored in the mongoDB collection
 
@@ -48,8 +54,8 @@ describe('POST /todos', () => { /* start callback in describe */
         }
 
         Todo.find({text: myTxt}).then((todos) => {
-          suspect(todos.length).toBe(1);
-          suspect(todos[0].text).toBe(myTxt);
+          suspect(todos.length).to.equal(1);
+          suspect(todos[0].text).to.equal(myTxt);
           done();
         }).catch((e) => done(e));
 
@@ -65,7 +71,7 @@ describe('POST /todos', () => { /* start callback in describe */
     request(app)
       .post('/todos')
       .send({text: myTxt })
-      .expect(400) // assertion about status
+      .expect(400) // expectation about status
       .end((err, res) => { // check what got stored in the mongoDB collection
 
         if (err) {
@@ -73,7 +79,7 @@ describe('POST /todos', () => { /* start callback in describe */
         }
 
         Todo.find().then((todos) => {
-          suspect(todos.length).toBe(2);
+          suspect(todos.length).to.equal(2);
           done();
         }).catch((e) => done(e));
 
@@ -90,10 +96,10 @@ describe('GET /todos', () => { /* start callback in describe */
 
     request(app)
       .get('/todos')
-      .expect(200) // assertion about status
-      .expect((res) => { // assertion about the result that comes back
+      .expect(200) // expectation about status
+      .expect((res) => { // expectation about the result that comes back
         // console.log(res.body);
-        suspect(res.body.todos.length).toBe(2);
+        suspect(res.body.todos.length).to.equal(2);
       })
       .end(done)
       ;
@@ -108,10 +114,10 @@ describe('GET /todos/:id', () => { /* start callback in describe */
 
     request(app)
       .get(`/todos/${testTodos[1]._id.toHexString()}`)
-      .expect(200) // assertion about status
-      .expect((res) => { // assertion about the result that comes back
+      .expect(200) // expectation about status
+      .expect((res) => { // expectation about the result that comes back
         // console.log(res.body);
-        suspect(res.body.todo.text).toBe(testTodos[1].text);
+        suspect(res.body.todo.text).to.equal(testTodos[1].text);
       })
       .end(done)
       ;
@@ -124,7 +130,7 @@ describe('GET /todos/:id', () => { /* start callback in describe */
 
     request(app)
       .get(`/todos/${newId.toHexString()}`)
-      .expect(404) // assertion about status
+      .expect(404) // expectation about status
       .end(done)
       ;
 
@@ -134,7 +140,7 @@ describe('GET /todos/:id', () => { /* start callback in describe */
 
     request(app)
       .get('/todos/1234abcd')
-      .expect(404) // assertion about status
+      .expect(404) // expectation about status
       .end(done)
       ;
 
@@ -150,10 +156,10 @@ describe('DELETE /todos/:id', () => { /* start callback in describe */
 
     request(app)
       .delete(`/todos/${idOfTodoToBeDeleted}`)
-      .expect(200) // assertion about status
-      .expect((res) => { // assertion about the result that comes back
+      .expect(200) // expectation about status
+      .expect((res) => { // expectation about the result that comes back
         // console.log(res.body);
-        suspect(res.body.todo._id).toBe(idOfTodoToBeDeleted);
+        suspect(res.body.todo._id).to.equal(idOfTodoToBeDeleted);
       })
       .end((err, res) => {
 
@@ -163,7 +169,7 @@ describe('DELETE /todos/:id', () => { /* start callback in describe */
 
         Todo.findById(idOfTodoToBeDeleted)
           .then((todo) => {
-            suspect(todo).toBeFalsy();
+            suspect(todo).to.be.null;
             done();
           })
           .catch((e) => done(e))
@@ -180,20 +186,92 @@ describe('DELETE /todos/:id', () => { /* start callback in describe */
 
     request(app)
       .delete(`/todos/${newId.toHexString()}`)
-      .expect(404) // assertion about status
+      .expect(404) // expectation about status
       .end(done)
       ;
 
   } /* end of callback in it('B:..) */ );
 
   it('C: should return 404 for in-valid id', (done) => {
-  
+
     request(app)
       .delete('/todos/1234abcd')
-      .expect(404) // assertion about status
+      .expect(404) // expectation about status
       .end(done)
       ;
 
   } /* end of callback in it('C:..) */ );
+
+} /* end of callback in describe() */ );
+
+describe('PATCH /todos/:id', () => { /* start callback in describe */
+
+  it('A: should update a todo document', (done) => {
+
+    // grab id of first item
+    var idOfTodoToBeUpdated = testTodos[0]._id.toHexString();
+    var text = 'This should be the new text';
+
+    request(app)
+      .patch(`/todos/${idOfTodoToBeUpdated}`)
+      .send({
+        completed: true,
+        text
+      })
+      .expect(200) // expectation about status
+      .expect((res) => { // expectation about the result that comes back
+        suspect(res.body.todo.text).to.equal(text);
+        suspect(res.body.todo.completed).to.be.true;
+        suspect(res.body.todo.completedAt).to.be.a('number');
+      })
+      .end(done)
+      ;
+
+  } /* end of callback in it('A:..) */ );
+
+  it('B: should clear completedAt when todo is not completed', (done) => {
+
+        // grab id of second item
+        var idOfTodoToBeUpdated = testTodos[1]._id.toHexString();
+        var text = 'This should be the new text!!';
+
+        request(app)
+          .patch(`/todos/${idOfTodoToBeUpdated}`)
+          .send({
+            completed: false,
+            text
+          })
+          .expect(200) // expectation about status
+          .expect((res) => { // expectation about the result that comes back
+            suspect(res.body.todo.text).to.equal(text);
+            suspect(res.body.todo.completed).to.be.false;
+            suspect(res.body.todo.completedAt).to.be.null;
+          })
+          .end(done)
+          ;
+
+      } /* end of callback in it('B:..) */ );
+
+  it('C: should return 404 if todo not found', (done) => {
+
+    var newId = new ObjectID();
+
+    request(app)
+      .patch(`/todos/${newId.toHexString()}`)
+      .expect(404) // expectation about status
+      .end(done)
+      ;
+
+  } /* end of callback in it('C:..) */ );
+
+  it('D: should return 404 for in-valid id', (done) => {
+
+    request(app)
+      .patch('/todos/1234abcd')
+      .expect(404) // expectation about status
+      .end(done)
+      ;
+
+  } /* end of callback in it('D:..) */ );
 
 } /* end of callback in describe() */ );
