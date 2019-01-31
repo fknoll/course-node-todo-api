@@ -1,3 +1,5 @@
+require('./config/config');
+
 const _ = require('lodash');
 const express = require('express');
 const hbs = require('hbs');
@@ -176,10 +178,7 @@ app.patch('/todos/:id', (req, res) => {
 });
 
 // Heroku is going to set the environment variable "process.env.PORT".
-// If running local, then default port to 3000.
-// OBS: The OR operator returns the first value if it’s truthy
-//      and the second value if the first value is falsy
-const port = process.env.PORT || 3000;
+const port = process.env.PORT;
 
 app.listen(port, () => {
   console.log(`Todo API Server is up on port ${port}`);
