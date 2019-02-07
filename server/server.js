@@ -29,20 +29,6 @@ app.use(bodyParser.json());
 app.use(express.static(__dirname + '/public'));
 app.set('view engine', 'hbs');
 
-// app.use((req, res, next) => {
-//   let now = new Date().toString();
-//   let log = `${now}: ${req.method} ${req.originalUrl}`;
-//   console.log(log);
-//
-//   fs.appendFile('server.log', log + os.EOL, (err) => {
-//     if (err) {
-//       console.log('Unable to append to server.log.')
-//     }
-//   });
-//
-//   next();
-// });
-
 // GET /
 app.get('/', (req, res) => {
   res.render('home.hbs', {
@@ -52,23 +38,52 @@ app.get('/', (req, res) => {
 
 // POST /todos
 app.post('/todos', (req, res) => {
-  // console.log(req.body);
 
-  var todo = new Todo({
-    text: req.body.text
-    // completed: false,
-    // completedAt: null
-  });
+  var todoBody = _.pick(req.body, ['text']);
+  var todo = new Todo(todoBody);
 
   todo.save()
-    .then(
-      (doc) => {
-        res.status(200).send(doc);
-      },
-      (e) => {
-        res.status(400).send(e);
-      }
-    )
+    .then
+      (
+        (todoDoc) => {
+          res.status(200).send(todoDoc);
+        }
+      )
+    .catch
+      (
+        (error) => {
+          res.status(400).send(error);
+        }
+      )
+  ;
+
+});
+
+// POST /users
+app.post('/users', (req, res) => {
+
+  var userBody = _.pick(req.body, ['name', 'email', 'password']);
+  var user = new User(userBody);
+
+  user.save()
+    .then
+      (
+        () => {
+          return user.generateAuthToken();
+        }
+      )
+    .then
+      (
+        (token) => {
+          res.status(200).header('x-auth', token).send(user);
+        }
+      )
+    .catch
+      (
+        (error) => {
+          res.status(400).send(error);
+        }
+      )
   ;
 
 });
@@ -77,14 +92,15 @@ app.post('/todos', (req, res) => {
 app.get('/users', (req, res) => {
 
   User.find()
-    .then(
-      (users) => {
-        res.status(200).send({users});
-      },
-      (e) => {
-        res.status(400).send(e);
-      }
-    )
+    .then
+      (
+        (users) => {
+          res.status(200).send({users});
+        },
+        (e) => {
+          res.status(400).send(e);
+        }
+      )
   ;
 
 });
@@ -93,14 +109,15 @@ app.get('/users', (req, res) => {
 app.get('/todos', (req, res) => {
 
   Todo.find()
-    .then(
-      (todos) => {
-        res.status(200).send({todos});
-      },
-      (e) => {
-        res.status(400).send(e);
-      }
-    )
+    .then
+      (
+        (todos) => {
+          res.status(200).send({todos});
+        },
+        (e) => {
+          res.status(400).send(e);
+        }
+      )
   ;
 
 });
@@ -115,13 +132,18 @@ app.get('/todos/:id', (req, res) => {
   };
 
   Todo.findById(id)
-    .then((todo) => {
-      if (!todo) {
-        return res.status(404).send();
-      };
-      res.status(200).send({todo});
-    })
-    .catch((e) => res.status(400).send())
+    .then
+      (
+        (todo) => {
+          if (!todo) {
+            return res.status(404).send();
+          };
+          res.status(200).send({todo});
+      })
+    .catch
+      (
+        (e) => res.status(400).send(e)
+      )
   ;
 
 });
@@ -136,13 +158,19 @@ app.delete('/todos/:id', (req, res) => {
   };
 
   Todo.findByIdAndRemove(id)
-    .then((todo) => {
-      if (!todo) {
-        return res.status(404).send(); // 404 Not Found
-      };
-      res.status(200).send({todo}); // 200 OK
-    })
-    .catch((e) => res.status(400).send()) // 400 Bad Request
+    .then
+      (
+        (todo) => {
+          if (!todo) {
+            return res.status(404).send(); // 404 Not Found
+          };
+          res.status(200).send({todo}); // 200 OK
+        }
+      )
+    .catch
+      (
+        (error) => res.status(400).send(error) // 400 Bad Request
+      )
   ;
 
 });
@@ -166,13 +194,19 @@ app.patch('/todos/:id', (req, res) => {
   ;
 
   Todo.findByIdAndUpdate(id, {$set: body}, {new: true})
-    .then((todo) => {
-      if (!todo) {
-        return res.status(404).send(); // 404 Not Found
-      };
-      res.status(200).send({todo}); // 200 OK
-    })
-    .catch((e) => res.status(400).send()) // 400 Bad Request
+    .then
+      (
+        (todo) => {
+          if (!todo) {
+            return res.status(404).send(); // 404 Not Found
+          };
+          res.status(200).send({todo}); // 200 OK
+        }
+      )
+    .catch
+      (
+        (error) => res.status(400).send(error) // 400 Bad Request
+      )
   ;
 
 });
@@ -183,24 +217,5 @@ const port = process.env.PORT;
 app.listen(port, () => {
   console.log(`Todo API Server is up on port ${port}`);
 });
-
-// var newUser = new User({
-//   name: 'Frodo Baggin',
-//   age: 34,
-//   location: 'Hobbiton, Shire',
-//   email: 'frodo.baggin@hobbiton.sh'
-// });
-//
-// newUser.save()
-// .then
-//   (
-//     (doc) => {
-//       console.log('Saved user', doc);
-//     },
-//     (e) => {
-//       console.log('Unable to save user:', e);
-//     }
-//   )
-// ;
 
 module.exports = {app};
