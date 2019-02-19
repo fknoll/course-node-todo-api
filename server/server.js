@@ -24,6 +24,8 @@ const {initializedMongoose} = require('./db/initialized-mongoose.js');
 const {Todo} = require('./models/todo.js');
 const {User} = require('./models/user.js');
 
+const {authenticate} = require('./middleware/authenticate');
+
 var app = express();
 app.use(bodyParser.json());
 app.use(express.static(__dirname + '/public'));
@@ -69,13 +71,18 @@ app.post('/users', (req, res) => {
     .then
       (
         () => {
+          // token is saved on current user instance/document
           return user.generateAuthToken();
         }
       )
     .then
       (
         (token) => {
-          res.status(200).header('x-auth', token).send(user);
+          // token is send back to requester as a HTTP response!
+          // res.setHeader() is a native method of Node.js
+          // and res.header() is an alias of res.set() method
+          // from Express framework.
+          res.status(200).header('X-Auth', token).send(user);
         }
       )
     .catch
@@ -88,6 +95,13 @@ app.post('/users', (req, res) => {
 
 });
 
+// GET /users/me
+app.get('/users/me', authenticate, (req, res) => {
+
+  res.status(200).send(req.user);
+
+});
+
 // GET /users
 app.get('/users', (req, res) => {
 
@@ -97,8 +111,8 @@ app.get('/users', (req, res) => {
         (users) => {
           res.status(200).send({users});
         },
-        (e) => {
-          res.status(400).send(e);
+        (error) => {
+          res.status(400).send(error);
         }
       )
   ;
