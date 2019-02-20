@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 const jwt = require('jsonwebtoken');
 const _ = require('lodash');
+const bcrypt = require('bcryptjs');
 
 // To be able to define instance/document methods,
 // we  have create to User model from a mongoose.Schema
@@ -42,8 +43,9 @@ var UserSchema = new mongoose.Schema({
 
 const mySecret = 'frodeguldfisk#1';
 
-// OVERWRITE instance methods "toJSON" and ADD "generateAuthToken()"
-// both to be used on the individual user instance/document
+// OVERWRITE instance method "toJSON", and
+// ADD instance method "generateAuthToken()".
+// Both method to be used on the individual user instance/document
 // OBS: We are going to use a regular old fashioned function, because
 //      ES6 arrow functions (=>) DOES NOT bind the "this" keyword!
 
@@ -103,6 +105,29 @@ UserSchema.statics.findByToken = function (token) {
     'tokens.access': 'auth' //     be seached in this way!?
   });
 };
+
+UserSchema.pre('save', function(next) {
+  var userInstance = this;
+
+  if (userInstance.isModified('password')) {
+
+    bcrypt.genSalt(10, (err, salt) => {
+
+      bcrypt.hash(userInstance.password, salt, (err, hash) => {
+
+        userInstance.password = hash;
+        next();
+
+      });
+    });
+
+  } else
+  {
+
+    next();
+
+  }
+});
 
 var User = mongoose.model('User', UserSchema);
 
